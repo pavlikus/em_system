@@ -34,12 +34,12 @@ class Token:
             self.payload,
             serializer=json,
             exp=exp,
-        )
+        ).decode()
 
     def _verify(self: Self) -> None:
         try:
             self.payload = pyseto.decode(
                 self.key, self.token, deserializer=json
             ).payload
-        except pyseto.exceptions.PysetoError:
+        except (ValueError, pyseto.exceptions.PysetoError):
             raise TokenError(_("Token is invalid or expired")) from None

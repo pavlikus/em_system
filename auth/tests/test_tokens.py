@@ -24,5 +24,5 @@ class TokenTest(TestCase):
 
     def test_token_invalid(self):
         token = "invalid_token"
-        with pytest.raises(ValueError):
+        with pytest.raises(TokenError):
             Token(raw_token=token)
