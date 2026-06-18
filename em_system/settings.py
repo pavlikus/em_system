@@ -130,6 +130,20 @@ class Development(Base):
     INTERNAL_IPS: list[str] = ["127.0.0.1"]
 
 
+class Test(Base):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": ":memory:",
+            "OPTIONS": {
+                "timeout": 30,
+            },
+        },
+    }
+
+    TEST_RUNNER = "em_system.runner.PytestTestRunner"
+
+
 class Production(Base):
     CSRF_COOKIE_SECURE: bool = True
     CSRF_COOKIE_HTTPONLY: bool = True
