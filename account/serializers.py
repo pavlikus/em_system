@@ -1,9 +1,12 @@
+from typing import Any
 from typing import Self
 
+from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 AuthUser = get_user_model()
 
@@ -49,3 +52,22 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         model = AuthUser
         fields = ("pk", "first_name", "last_name", "middle_name", "email")
         read_only_fields = ("pk", "email")
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(style={"input_type": "password"})
+
+    def authenticate(self, **kwargs: Any) -> AuthUser | None:
+        return authenticate(self.context["request"], **kwargs)
+
+    def validate(self: Self, attrs: dict) -> dict:
+        email = attrs.get("email")
+        password = attrs.get("password")
+        user = self.authenticate(email=email, password=password)
+        if not user:
+            raise ValidationError(
+                _("Unable to log in with provided credentials.")
+            )
+        attrs["user"] = user
+        return attrs
