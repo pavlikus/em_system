@@ -1,10 +1,12 @@
 from typing import Any
 from typing import Self
 
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.generics import GenericAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -16,6 +18,9 @@ from account.serializers import UserDetailsSerializer
 from auth.tokens import Token
 from auth.utils import set_cookies
 from auth.utils import unset_cookies
+
+
+AuthUser = get_user_model()
 
 
 class RegistrationView(CreateAPIView):
@@ -58,4 +63,21 @@ class LogoutView(APIView):
         )
         unset_cookies(response)
 
+        return response
+
+
+class UserDetailsView(RetrieveUpdateDestroyAPIView):
+    serializer_class = UserDetailsSerializer
+
+    def get_object(self: Self) -> AuthUser:
+        return self.request.user
+
+    def delete(
+        self: Self, request: Request, *args: Any, **kwargs: Any
+    ) -> Response:
+        user = self.get_object()
+        user.is_active = False
+        user.save()
+        response = Response(status=status.HTTP_204_NO_CONTENT)
+        unset_cookies(response)
         return response
