@@ -2,19 +2,25 @@ from typing import Any
 from typing import Self
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.generics import GenericAPIView
+from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAdminUser
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from account.serializers import LoginSerializer
+from account.serializers import PermissionSerializer
 from account.serializers import RegistrationSerializer
 from account.serializers import UserDetailsSerializer
+from account.serializers import UserSerializer
 from auth.tokens import Token
 from auth.utils import set_cookies
 from auth.utils import unset_cookies
@@ -81,3 +87,15 @@ class UserDetailsView(RetrieveUpdateDestroyAPIView):
         response = Response(status=status.HTTP_204_NO_CONTENT)
         unset_cookies(response)
         return response
+
+
+class PermissionsView(ListAPIView):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+    permission_classes = (IsAdminUser,)
+
+
+class UserViewSet(ModelViewSet):
+    queryset = AuthUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAdminUser,)

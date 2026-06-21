@@ -3,6 +3,7 @@ from typing import Self
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
@@ -71,3 +72,25 @@ class LoginSerializer(serializers.Serializer):
             )
         attrs["user"] = user
         return attrs
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = "__all__"
+        read_only_fields = ("pk",)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    permissions = PermissionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AuthUser
+        read_only_fields = (
+            "pk",
+            "email",
+        )
+        exclude = (
+            "password",
+            "is_superuser",
+        )
