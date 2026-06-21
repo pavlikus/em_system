@@ -17,6 +17,11 @@ def test_user():
 
 
 @pytest.fixture
+def test_staff_user():
+    return {"email": "test@test.com", "password": "test_123", "is_staff": True}
+
+
+@pytest.fixture
 def test_new_user():
     return {
         "email": "test2@test.com",
@@ -31,6 +36,17 @@ def test_auth_user(test_user):
 
 
 @pytest.fixture
+def test_auth_staff_user(test_staff_user):
+    return AuthUser.objects.create_user(**test_staff_user)
+
+
+@pytest.fixture
 def auth_client(api_client, test_auth_user):
     api_client.force_authenticate(user=test_auth_user)
+    return api_client
+
+
+@pytest.fixture
+def auth_staff_client(api_client, test_auth_staff_user):
+    api_client.force_authenticate(user=test_auth_staff_user)
     return api_client

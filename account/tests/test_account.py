@@ -30,3 +30,24 @@ def test_authenticated_request(auth_client):
     url = reverse("account:user")
     response = auth_client.get(url)
     assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+def test_users_endpoint_for_user(auth_client):
+    url = reverse("users-list")
+    response = auth_client.get(url)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_users_endpoint_request(api_client):
+    url = reverse("users-list")
+    response = api_client.get(url)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_users_endpoint_for_staff(auth_staff_client):
+    url = reverse("users-list")
+    response = auth_staff_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
