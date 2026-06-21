@@ -159,6 +159,11 @@ class Test(Base):
         },
     }
 
+    REST_FRAMEWORK = {
+        **Base.REST_FRAMEWORK,
+        "TEST_REQUEST_DEFAULT_FORMAT": "json",
+    }
+
     TEST_RUNNER = "em_system.runner.PytestTestRunner"
 
 
